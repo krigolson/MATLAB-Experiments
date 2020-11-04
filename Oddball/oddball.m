@@ -1,4 +1,4 @@
- ucc     c % one response oddball source code
+% one response oddball source code
 % by Olav Krigolson, October, 2020
 % note, to run this game you need to have Psychtoolbox (Version 3) and this
 % was built on MALTAB 2019A
@@ -38,11 +38,11 @@ experimentData = [];
 % define circle size by its radius
 circleRadius = 30;
 % fixation mean delay
-fixationDelay = 0.4;
+fixationDelay = 0.3;
 % fixation deviation 
 fixationDeviation = 0.1;
 % how long the circle is up
-circleTime = 0.8;
+circleTime = 0.5;
 
 % skip Psychtoolbox sync tests to avoid sync failure issues
 Screen('Preference', 'SkipSyncTests', 1); 
@@ -214,6 +214,10 @@ for currentBlock = 1:numberBlocks
     end
     
 end
+
+DrawFormattedText(win, 'Thanks for playing!','center', 'center', [255 255 255],[],[],[],2);
+Screen('Flip', win);
+WaitSecs(5);
 
 sca;
 ListenChar(0); % allow typing in Matlab

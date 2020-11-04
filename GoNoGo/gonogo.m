@@ -1,12 +1,12 @@
- ucc     c % one response oddball source code
+% go-nogo source code
 % by Olav Krigolson, October, 2020
 % note, to run this game you need to have Psychtoolbox (Version 3) and this
 % was built on MALTAB 2019A
 
 % note, only uncomment these two lines (and the one at the end) if you know this will not crash!
-%ListenChar(2); %Stop typing in Matlab
-%HideCursor();   % hide the cursor
-
+ListenChar(2); %Stop typing in Matlab
+HideCursor();   % hide the cursor
+ 
 % clear all variables in memory
 clear all;
 % close all open matlab files and windows
@@ -15,14 +15,14 @@ close all;
 clc;
 % seed the random number generator
 rng('shuffle');
-
+  
 % define key variables
-% what is the chance a trial is an oddball
-oddballChance = 0.25;
+% what is the chance a trial is an noGo
+noGoChance = 0.25;
 % define the number of experimental blocks
 numberBlocks = 2;
 % define the number of experimental trials
-numberTrials = 4;
+numberTrials = 10;
 % define the background screen colour
 backgroundColor = [166 166 166];
 % define the screen size
@@ -38,11 +38,11 @@ experimentData = [];
 % define circle size by its radius
 circleRadius = 30;
 % fixation mean delay
-fixationDelay = 0.4;
+fixationDelay = 0.3;
 % fixation deviation 
 fixationDeviation = 0.1;
 % how long the circle is up
-circleTime = 0.8;
+circleTime = 0.5;
 
 % skip Psychtoolbox sync tests to avoid sync failure issues
 Screen('Preference', 'SkipSyncTests', 1); 
@@ -55,18 +55,18 @@ ymid = rec(4)/2;
 % setup some parameters
 Screen(win,'TextSize', textSize);
 % determine the target color and the inverse for the control color
-targetColor = [randi(255) randi(255) randi(255)];
-controlColor = 255-targetColor;
+noGoColor = [randi(255) randi(255) randi(255)];
+goColor = 255-noGoColor;
 
 % put up the task name in the middle of the screen
-DrawFormattedText(win, 'Oddball','center', 'center', [255 255 255],[],[],[],2);
+DrawFormattedText(win, 'Go-NoGo','center', 'center', [255 255 255],[],[],[],2);
 Screen('Flip', win);
 WaitSecs(5);
 
 % instruction screen one
 instructions = ['You are going to see a series of circles that appear and disappear in the middle of the screen.\nIf you see a circle with the same color as the circle below, press the space bar as quickly as you can.\nTry this now!'];
 DrawFormattedText(win, instructions,'center',ymid-200, textColor,[],[],[],2);
-Screen('FillOval', win , targetColor, [xmid-circleRadius ymid-circleRadius xmid+circleRadius ymid+circleRadius], 8);
+Screen('FillOval', win , goColor, [xmid-circleRadius ymid-circleRadius xmid+circleRadius ymid+circleRadius], 8);
 Screen('Flip',win);
 
 waitForResponse = 1;
@@ -83,7 +83,7 @@ WaitSecs(.25);
 % instruction screen two
 instructions = ['If you see a circle with the same color as the circle below, do not press the space bar or respond in any way.\nPress the U key to affirm you understand the instructions and proceed to the next screen.'];
 DrawFormattedText(win, instructions,'center',ymid-200, textColor,[],[],[],2);
-Screen('FillOval', win , controlColor, [xmid-circleRadius ymid-circleRadius xmid+circleRadius ymid+circleRadius], 8);
+Screen('FillOval', win , noGoColor, [xmid-circleRadius ymid-circleRadius xmid+circleRadius ymid+circleRadius], 8);
 Screen('Flip',win);
 
 waitForResponse = 1;
@@ -154,12 +154,12 @@ for currentBlock = 1:numberBlocks
     
     for currentTrial = 1:numberTrials
         
-        %Determine whether oddball or control trial
-        if rand < oddballChance
-            drawColor = targetColor;
+        %Determine whether go or noGo trial
+        if rand < noGoChance
+            drawColor = noGoColor;
             trialType = 1;
         else
-            drawColor = controlColor;
+            drawColor = goColor;
             trialType = 2;
         end
         
@@ -214,6 +214,10 @@ for currentBlock = 1:numberBlocks
     end
     
 end
+
+DrawFormattedText(win, 'Thanks for playing!','center', 'center', [255 255 255],[],[],[],2);
+Screen('Flip', win);
+WaitSecs(5);
 
 sca;
 ListenChar(0); % allow typing in Matlab
