@@ -10,12 +10,14 @@ HideCursor();   % hide the cursor
 
 doorWin(1) = 0.6;
 doorWin(2) = 0.1;
+doorWin(3) = 0.5;
+doorWin(4) = 0.2;
 doorTimeDelay = 0.4;
 doorTimeDeviation = 0.2;
 fixationDelay = 0.4;
 fixationDeviation = 0.2;
-nBlocks = 2;
-nTrials = 2;
+nBlocks = 4;
+nTrials = 10;
 % define the screen size
 screenSize = [0 0 800 600];
 % define default text size
@@ -47,8 +49,10 @@ lossTexture = Screen('MakeTexture', window, lossI);
 xMid = windowSize(3)/2;
 yMid = windowSize(4)/2;
 doorGap = 50;
-doorLocations(1,:) = [xMid-doorGap*2.5 yMid-doorGap*2 xMid-doorGap yMid+doorGap*2];
-doorLocations(2,:) = [xMid+doorGap yMid-doorGap*2 xMid+doorGap*2.5 yMid+doorGap*2];
+doorLocations(1,:) = [xMid-doorGap*2.5 yMid+doorGap xMid-doorGap yMid+doorGap*4];
+doorLocations(2,:) = [xMid+doorGap yMid+doorGap xMid+doorGap*2.5 yMid+doorGap*4];
+doorLocations(3,:) = [xMid-doorGap*2.5 yMid-doorGap*4 xMid-doorGap yMid-doorGap];
+doorLocations(4,:) = [xMid+doorGap yMid-doorGap*4 xMid+doorGap*2.5 yMid-doorGap];
 
 % put up the task name in the middle of the screen
 DrawFormattedText(window, 'Rapid Doors Task','center', 'center', textColor,[],[],[],2);
@@ -56,7 +60,7 @@ Screen('Flip', window);
 WaitSecs(5);
 
 % instruction screen one
-instructions = ['You are going to see to see two doors on the screen. Win by selecting the door that has more gold behind it!n.\nOne of the doors has more gold than the other. Press A to select the left door and L to select the right door\nSometimes the doors do not pay any gold.\nPress C to continue.'];
+instructions = ['You are going to see to see two doors on the screen. Win by selecting the door that has more gold behind it!n.\nOne of the doors has more gold than the other. Press Q to select the top left door, P to select the top right door, A to select the bottom left door, and L to select the bottom right door. \nSometimes the doors do not pay any gold.\nPress C to continue.'];
 DrawFormattedText(window, instructions,'center',yMid-200, textColor,[],[],[],2);
 Screen('Flip',window);
 
@@ -83,8 +87,22 @@ for blockCounter = 1:nBlocks
             break
         end
     end
+    while 1 
+             door3 = randi(4);
+        if door3 ~= door1 && door3~= door2 
+            break
+        end
+    end
+    while 1
+        door4 = randi(4);
+        if door4 ~= door1 && door4~= door2 && door4~=door3
+            break
+        end
+    end
     doorColour{1} = dTexture{door1};
     doorColour{2} = dTexture{door2};
+    doorColour{3} = dTexture{door3};
+    doorColour{4} = dTexture{door4};
 
     % block message
     DrawFormattedText(window,['Block ' num2str(blockCounter)],'center',yMid-200,textColor);
@@ -124,11 +142,13 @@ for blockCounter = 1:nBlocks
     for trialCounter = 1:nTrials
         
         % randomize door locations
-        doorOrder = [1 2];
+        doorOrder = [1 2 3 4];
         doorOrder = Shuffle(doorOrder);
         
         trialWin(1) = doorWin(doorOrder(1));
         trialWin(2) = doorWin(doorOrder(2));
+        trialWin(3) = doorWin(doorOrder(3));
+        trialWin(4) = doorWin(doorOrder(4));
         
         % draw fixation + for random delay
         DrawFormattedText(window,'+','center','center',textColor);
@@ -137,7 +157,9 @@ for blockCounter = 1:nBlocks
         WaitSecs(fixationTime);
         
         Screen('DrawTexture', window, doorColour{doorOrder(1)}, [], [doorLocations(1,:)]);
-        Screen('DrawTexture', window, doorColour{doorOrder(2)}, [], [doorLocations(2,:)]);
+        Screen('DrawTexture', window, doorColour{doorOrder(2)}, [], [doorLocations(2,:)]);  
+        Screen('DrawTexture', window, doorColour{doorOrder(3)}, [], [doorLocations(3,:)]);
+        Screen('DrawTexture', window, doorColour{doorOrder(4)}, [], [doorLocations(4,:)]);
         Screen('Flip',window);
         
         startTime = GetSecs;
@@ -147,15 +169,27 @@ for blockCounter = 1:nBlocks
         while noResponse
             [keypressed, ~, keyCode] = KbCheck();
             if keypressed && noResponse
-                if keyCode(KbName('A'))
+                if keyCode(KbName('Q'))
                     currentResponse = 1;
                     reactionTime = GetSecs - startTime;
                     noResponse = 0;
                 end
             end
             if keypressed && noResponse
-                if keyCode(KbName('L'))
+                if keyCode(KbName('P'))
                     currentResponse = 2;
+                    reactionTime = GetSecs - startTime;
+                    noResponse = 0;
+                end
+            end
+            if keyCode(KbName('A'))
+                currentResponse = 3;
+                reactionTime = GetSecs - startTime;
+                noResponse = 0;
+            end
+            if keypressed && noResponse
+                if keyCode(KbName('L'))
+                    currentResponse = 4;
                     reactionTime = GetSecs - startTime;
                     noResponse = 0;
                 end
@@ -186,20 +220,26 @@ for blockCounter = 1:nBlocks
         experimentData(actualTrialCounter,2) = trialCounter;
         experimentData(actualTrialCounter,3) = doorOrder(1);
         experimentData(actualTrialCounter,4) = doorOrder(2);
-        experimentData(actualTrialCounter,5) = trialWin(1);
-        experimentData(actualTrialCounter,6) = trialWin(2);
-        experimentData(actualTrialCounter,7) = currentResponse;
-        experimentData(actualTrialCounter,8) = reactionTime;        
-        experimentData(actualTrialCounter,9) = outcome;
-        experimentData(actualTrialCounter,10) = doorRoll;
-        experimentData(actualTrialCounter,11) = door1;
-        experimentData(actualTrialCounter,12) = door2;
+        experimentData(actualTrialCounter,5) = doorOrder(3);
+        experimentData(actualTrialCounter,6) = doorOrder(4);
+        experimentData(actualTrialCounter,7) = trialWin(1);
+        experimentData(actualTrialCounter,8) = trialWin(2);
+        experimentData(actualTrialCounter,9) = trialWin(3);
+        experimentData(actualTrialCounter,10) = trialWin(4);
+        experimentData(actualTrialCounter,11) = currentResponse;
+        experimentData(actualTrialCounter,12) = reactionTime;        
+        experimentData(actualTrialCounter,13) = outcome;
+        experimentData(actualTrialCounter,14) = doorRoll;
+        experimentData(actualTrialCounter,15) = door1;
+        experimentData(actualTrialCounter,16) = door2;
+        experimentData(actualTrialCounter,17) = door3;
+        experimentData(actualTrialCounter,18) = door4;
         
         actualTrialCounter = actualTrialCounter + 1;
         
     end
     
-end
+ end
 
 DrawFormattedText(window, 'Thanks for playing!','center', 'center', [255 255 255],[],[],[],2);
 Screen('Flip', window);

@@ -12,10 +12,8 @@ doorWin(1) = 0.6;
 doorWin(2) = 0.1;
 doorTimeDelay = 0.4;
 doorTimeDeviation = 0.2;
-fixationDelay = 0.4;
-fixationDeviation = 0.2;
 nBlocks = 2;
-nTrials = 2;
+nTrials = 15;
 % define the screen size
 screenSize = [0 0 800 600];
 % define default text size
@@ -130,12 +128,6 @@ for blockCounter = 1:nBlocks
         trialWin(1) = doorWin(doorOrder(1));
         trialWin(2) = doorWin(doorOrder(2));
         
-        % draw fixation + for random delay
-        DrawFormattedText(window,'+','center','center',textColor);
-        Screen('Flip',window);
-        fixationTime = rand(1)*fixationDeviation + fixationDelay;
-        WaitSecs(fixationTime);
-        
         Screen('DrawTexture', window, doorColour{doorOrder(1)}, [], [doorLocations(1,:)]);
         Screen('DrawTexture', window, doorColour{doorOrder(2)}, [], [doorLocations(2,:)]);
         Screen('Flip',window);
@@ -168,19 +160,14 @@ for blockCounter = 1:nBlocks
             outcome = 1;
         end
         
-        % draw fixation + for random delay
-        DrawFormattedText(window,'+','center','center',textColor);
-        Screen('Flip',window);
-        fixationTime = rand(1)*fixationDeviation + fixationDelay;
-        WaitSecs(fixationTime);
-        
         if outcome == 1
             Screen('DrawTexture', window, winTexture, [], [xMid-50 yMid-50 xMid+50 yMid+50]);
         else
             Screen('DrawTexture', window, lossTexture, [], [xMid-50 yMid-50 xMid+50 yMid+50]);
         end
         Screen('Flip',window);
-        WaitSecs(1);  
+        doorTime = rand(1)*doorTimeDeviation + doorTimeDelay;
+        WaitSecs(doorTime);  
         
         experimentData(actualTrialCounter,1) = blockCounter;
         experimentData(actualTrialCounter,2) = trialCounter;
